@@ -1,6 +1,9 @@
 # sdab_libdes
 Single Domain Antibody Library Designer
 
+sdab_libdes (v1.2)
+dB (v2)
+
 DESCRIPTION:
 Single Domain Antibody Library Designer (sdab_libdes)
 

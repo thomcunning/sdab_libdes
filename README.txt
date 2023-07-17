@@ -7,8 +7,8 @@ Single Domain Antibody Library Designer (sdab_libdes)
 
 Efficiently design diversity-containing oligonucleotides for secondary/matured library creation from a human single-domain antibody lead (VL or VH).
 
-Input is the primary sequence(s) of the CDR(s) of a human (VH or VL) lead (per the North, IMGT, or Chothia CDR definition) in the correct text-based, fasta file format (see EXAMPLES).
 
+Input is the primary sequence(s) of the CDR(s) of a human (VH or VL) lead (per the North, IMGT, or Chothia CDR definition) in the correct text-based, fasta file format (see EXAMPLES).
 sdab_libdes will search a dB of human single domain antibody CDR sequences (per your CDR definition choice) for matching combined-length CDR entries, VL or VH. Same CDR length entries represent sdAbs recognizing a variety of epitopes on a variety of antigens. Individual amino acid matching is performed with a percentage homology reported for each position. Given enough matches (~>30), highly-conserved amino acid identities represent residues likely important for domain/interacting loop integrity, whereas less well-conserved residues represent locations of antigen interaction, and the focus mutation for library creation to enhance affinity, specificity, etc.
 
 A-priori knowledge of critical antigen interacting CDRs (i.e., via single alanine scanning, etc.), will result in highest tool utility.
@@ -27,32 +27,32 @@ human VH or VL only; IMGT-numbered Ig/chains only
 	dB v2 amino acid residue range per domain CDR, CDR definition
 			    most common length (# of dB entries)
 
-		          North			    IMGT			  Chothia
+		North			    IMGT			Chothia
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-VL-CDR1		  1 - 24		  	1 - 19		  	1 - 24
-		      11 (13,006)		6 (13,055)		11 (13,006)
+VL-CDR1		  1 - 24		  1 - 19		  1 - 24
+		11 (13,006)		6 (13,055)		11 (13,006)
 
 
-VL-CDR2		  5 - 14		  	2 - 9    			4 - 13
-    		  8 (28,110)		3 (28,081)		7 (28,111)
+VL-CDR2		  5 - 14		  2 - 9    		4 - 13
+    		8 (28,110)		3 (28,081)		7 (28,111)
 	
 
-VL-CDR3		  3 - 23			  3 - 23		    	3 - 23
-		      9 (12,098)		9 (12,089)		  9 (12,098)
+VL-CDR3		  3 - 23		  3 - 23		   3 - 23
+		9 (12,098)		9 (12,089)		  9 (12,098)
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-VH-CDR1		  1 - 23			    1 - 18			    1 - 17
-		      13 (43,680)		  8 (45,233)		  7 (44,118)
+VH-CDR1		  1 - 23		1 - 18			    1 - 17
+		13 (43,680)		8 (45,233)		  7 (44,118)
 
 
-VH-CDR2		  3 - 24			    2 - 22			    1 - 20
-		      10 (37,793)		  8 (37,677)		  6 (36,798)
+VH-CDR2		  3 - 24		2 - 22			    1 - 20
+		10 (37,793)		8 (37,677)		  6 (36,798)
 
 
-VH-CDR3		    X			      3 - 25			    3 - 21
-				    	          15 (6,196)	   	11 (6,196)
+VH-CDR3		    X			3 - 25			    3 - 21
+				    	15 (6,196)	   	11 (6,196)
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -69,28 +69,20 @@ INSTALLATION + USE:
 
 INPUT FORMAT + EXAMPLES:
 
-The order of each user entry should be 6 single-quoted CDR values, comma-separated, and bound by brackets:
+- The order of each user entry should be 6 single-quoted CDR values, comma-separated, and bound by brackets:
 ['VL-CDR1','VL-CDR2','VL-CDR3','VH-CDR1','VH-CDR2','VH-CDR3']
-
-VH and VL entries must be contained in separate files and submitted separately.
-
-All entries within file will be analyzed according to a single CDR definition of your choosing.
-
-The combination of CDRs to analyze within either the VL or VH file do NOT have to be the same.
-
-CDR sequences should be UPPERCASE and contained within single quotes.
-
-For CDRs within VL or VH you do NOT want to analyze, leave blank ('').
-
+- VH and VL entries must be contained in separate files and submitted separately.
+- All entries within file will be analyzed according to a single CDR definition of your choosing.
+- The combination of CDRs to analyze within either the VL or VH file do NOT have to be the same.
+- CDR sequences should be UPPERCASE and contained within single quotes.
+- For CDRs within VL or VH you do NOT want to analyze, leave blank ('').
+- For multiple entries, format of your entries per fasta file format.
 
 --> User input entry(s) determines, 1) which human chain to analyze (VH or VL) and, 2) which CDR's to search dB/match.
-
 --> When prompted for which CDR definition to use
 
-For multiple entries, format of your entries per fasta file format. 
 
-
-Input File Examples...
+(2) Input File Examples...
 
 2 VL entries (The 1st analyzing all 3 VL-CDRs, the 2nd only VL-CDR1+3; both according to the IMGT CDR definition):
 
@@ -119,9 +111,12 @@ mysqlconnector (pip3 install mysql-connector-python)
 
 
 REFERENCE:
--ab source: EMBLIG (http://www.abybank.org/emblig/)
--chain/Ig numbering tool: ANARCI (https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabpred/anarci/)
--CDR definition tool: SCALOP (https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabpred/scalop)
+-ab source: 
+EMBLIG (http://www.abybank.org/emblig/)
+-chain/Ig numbering tool: 
+ANARCI (https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabpred/anarci/)
+-CDR definition tool: 
+SCALOP (https://opig.stats.ox.ac.uk/webapps/sabdab-sabpred/sabpred/scalop)
 
 
 

@@ -2,13 +2,17 @@
 Single Domain Antibody Library Designer
 
 DESCRIPTION:
-
 Single Domain Antibody Library Designer (sdab_libdes)
 
 Efficiently design diversity-containing oligonucleotides for secondary/matured library creation from a human single-domain antibody lead (VL or VH).
 
-Input is the primary sequence(s) of the CDR(s) of a human (VH or VL) lead (per the North, IMGT, or Chothia CDR definition) in the correct text-based, fasta file format (see EXAMPLES).
-sdab_libdes will search a dB of human single domain antibody CDR sequences (per your CDR definition choice) for matching combined-length CDR entries, VL or VH. Same CDR length entries represent sdAbs recognizing a variety of epitopes on a variety of antigens. Individual amino acid matching is performed with a percentage homology reported for each position. Given enough matches (~>30), highly-conserved amino acid identities represent residues likely important for domain/interacting loop integrity, whereas less well-conserved residues represent locations of antigen interaction, and the focus of mutation for library creation to enhance affinity, specificity, etc.
+Input is the primary sequence(s) of the CDR(s) of a human (VH or VL) lead (per the North, IMGT, or Chothia CDR definition) in the correct text-based, fasta 
+file format (see EXAMPLES).
+sdab_libdes will search a dB of human single domain antibody CDR sequences (per your CDR definition choice) for matching combined-length CDR entries, VL or VH. 
+Same CDR length entries represent sdAbs recognizing a variety of epitopes on a variety of antigens. Individual amino acid matching is performed with a percentage 
+homology reported for each position. Given enough matches (~>30), highly-conserved amino acid identities represent residues likely important for domain/interacting 
+loop integrity, whereas less well-conserved residues represent locations of antigen interaction, and the focus of mutation for library creation to enhance affinity, 
+specificity, etc.
 
 A-priori knowledge of critical antigen interacting CDRs (i.e., via single alanine scanning, etc.), will result in highest tool utility.
 

@@ -5,7 +5,7 @@ sdab_libdes (v1.2)
 dB (v2)
 
 DESCRIPTION:
-Single Domain Antibody Library Designer (sdab_libdes)
+Single Domain Antibody Library Designer
 
 Efficiently design diversity-containing oligonucleotides for secondary/matured library creation from a human single-domain antibody lead (VL or VH).
 

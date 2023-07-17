@@ -7,9 +7,8 @@ Single Domain Antibody Library Designer (sdab_libdes)
 
 Efficiently design diversity-containing oligonucleotides for secondary/matured library creation from a human single-domain antibody lead (VL or VH).
 
-
 Input is the primary sequence(s) of the CDR(s) of a human (VH or VL) lead (per the North, IMGT, or Chothia CDR definition) in the correct text-based, fasta file format (see EXAMPLES).
-sdab_libdes will search a dB of human single domain antibody CDR sequences (per your CDR definition choice) for matching combined-length CDR entries, VL or VH. Same CDR length entries represent sdAbs recognizing a variety of epitopes on a variety of antigens. Individual amino acid matching is performed with a percentage homology reported for each position. Given enough matches (~>30), highly-conserved amino acid identities represent residues likely important for domain/interacting loop integrity, whereas less well-conserved residues represent locations of antigen interaction, and the focus mutation for library creation to enhance affinity, specificity, etc.
+sdab_libdes will search a dB of human single domain antibody CDR sequences (per your CDR definition choice) for matching combined-length CDR entries, VL or VH. Same CDR length entries represent sdAbs recognizing a variety of epitopes on a variety of antigens. Individual amino acid matching is performed with a percentage homology reported for each position. Given enough matches (~>30), highly-conserved amino acid identities represent residues likely important for domain/interacting loop integrity, whereas less well-conserved residues represent locations of antigen interaction, and the focus of mutation for library creation to enhance affinity, specificity, etc.
 
 A-priori knowledge of critical antigen interacting CDRs (i.e., via single alanine scanning, etc.), will result in highest tool utility.
 
@@ -25,33 +24,33 @@ human VH or VL only; IMGT-numbered Ig/chains only
 
 
 	dB v2 amino acid residue range per domain CDR, CDR definition
-			    most common length (# of dB entries)
+		most common length (# of dB entries)
 
-		North			    IMGT			Chothia
+		   North	 	   IMGT			  Chothia
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 VL-CDR1		  1 - 24		  1 - 19		  1 - 24
 		11 (13,006)		6 (13,055)		11 (13,006)
 
 
-VL-CDR2		  5 - 14		  2 - 9    		4 - 13
+VL-CDR2		  5 - 14		  2 - 9    		  4 - 13
     		8 (28,110)		3 (28,081)		7 (28,111)
 	
 
-VL-CDR3		  3 - 23		  3 - 23		   3 - 23
-		9 (12,098)		9 (12,089)		  9 (12,098)
+VL-CDR3		  3 - 23		  3 - 23		  3 - 23
+		9 (12,098)		9 (12,089)		9 (12,098)
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-VH-CDR1		  1 - 23		1 - 18			    1 - 17
-		13 (43,680)		8 (45,233)		  7 (44,118)
+VH-CDR1		  1 - 23		  1 - 18		  1 - 17
+		13 (43,680)		8 (45,233)		 7 (44,118)
 
 
-VH-CDR2		  3 - 24		2 - 22			    1 - 20
-		10 (37,793)		8 (37,677)		  6 (36,798)
+VH-CDR2		  3 - 24		  2 - 22		  1 - 20
+		10 (37,793)		8 (37,677)		 6 (36,798)
 
 
-VH-CDR3		    X			3 - 25			    3 - 21
+VH-CDR3		    X			  3 - 25		  3 - 21
 				    	15 (6,196)	   	11 (6,196)
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -79,7 +78,8 @@ INPUT FORMAT + EXAMPLES:
 - For multiple entries, format of your entries per fasta file format.
 
 --> User input entry(s) determines, 1) which human chain to analyze (VH or VL) and, 2) which CDR's to search dB/match.
---> When prompted for which CDR definition to use
+--> When prompted, CDR definition choice will apply to ALL entries of submitted file.
+
 
 
 (2) Input File Examples...

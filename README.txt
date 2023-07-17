@@ -93,20 +93,21 @@ INPUT FORMAT + EXAMPLES:
 
 2 VL entries (The 1st analyzing all 3 VL-CDRs, the 2nd only VL-CDR1+3; both according to the IMGT CDR definition):
 
->light-chain entry #1
-['NLGDKY','ATS','SSFAGSTSWV','','','']
->light-chain entry #2
-['TSNIGRYY','','QQYNHVPGT','','','']
+>example VL ab0
+['ASNIKYSA','ATS','QSFYGSTYWV','','','']
+>example VL ab1
+['TSNIGRYY','','QSYGTSSGA','','','']
 
 
-3 VH entries (The 1st analyzing only VH-CDR1, the 2nd analyzing VH-CDR1+2, the 3rd analyzing all 3 VH-CDRs; all according to the Chothia CDR definition):
+3 VH entries (The 1st analyzing only VH-CDR1, the 2nd analyzing VH-CDR1+2, the 3rd analyzing all 3 VH-CDRs; all according to the North definition 
+for CDR1+2 and the IMGT definition for CDR3):
 
->heavy-chain entry #1
-['','','','GYSFTSY','','']
->heavy-chain entry #2
-['','','','GYNFNDF','RSKANSYA','']
->heavy-chain entry #3
-['','','','GFTFSSY','WYDGSN','NDRGAYASFGGFD']
+>example VH ab0
+['','','','AASGFTFSSYAMH','','']
+>example VH ab1
+['','','','ATSFYTFDSYYMT','GISPDGSNTY','']
+>example VH ab2
+['','','','AASRFTFSSYAMS','IINPSYSNTD','ARDRGSTGFYYYFDY']
 
 
 

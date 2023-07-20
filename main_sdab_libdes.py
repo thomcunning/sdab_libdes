@@ -1,4 +1,4 @@
-import ab_mut_classes_dev
+import mod_sdab_libdes
 import easygui
 
 def main():
@@ -25,13 +25,13 @@ def main():
     ab_fasta_file_path = easygui.fileopenbox()
 
     #send users list of CDR seqs from fasta file per format instructions (+ with users choices) to list to analyze: 'my_prot_list'
-    my_prot_list, ab_format, chain_num_scheme, CDR12_annot, CDR3_annot, CDR13_annot = ab_mut_classes_dev.prep_seqs(ab_fasta_file_path)
+    my_prot_list, ab_format, chain_num_scheme, CDR12_annot, CDR3_annot, CDR13_annot = mod_sdab_libdes.prep_seqs(ab_fasta_file_path)
 
 
     #process each users entry from 'my_prot_list' as 'seq' by making an 'Antibody' object + passing users choices as object-instance variables
     for i in my_prot_list:
 
-        seq = ab_mut_classes_dev.Antibody(i, ab_species, ab_format, chain_num_scheme, CDR12_annot, CDR3_annot, CDR13_annot)
+        seq = mod_sdab_libdes.Antibody(i, ab_species, ab_format, chain_num_scheme, CDR12_annot, CDR3_annot, CDR13_annot)
 
         #split each entry from list (i) into 1) header (id), 2)CDR_match a list of single char strings (to indicate whether to do dB, indiv
         #aa matching) and, 3)CDR_seqs a list of the literal, string CDR sequences
@@ -44,7 +44,7 @@ def main():
         seq.matching(header, CDR_match, CDR_seqs, dB_results_list)
 
 
-    table = ab_mut_classes_dev.soft_mut_aa_table()
+    table = mod_sdab_libdes.soft_mut_aa_table()
     print(table)
 
 

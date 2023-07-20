@@ -3,7 +3,7 @@ import mysql.connector
 
 def prep_seqs(ab_fasta_file_path):
 
-    #variable region/chain numbering scheme; will point to specific dB_table to get CDRs from (imgt, or chothia when avail)
+###FUTURE ENHANCEMENT: user will be able to choose Ig/chain-numbering scheme; will fill 'dB_table' in dB call; for dB-v2: only imgt
 
 #    chain_num_scheme = input('Select VL or VH Ig chain numbering scheme: {(i)mgt, (c)hothia}')
 
@@ -197,7 +197,6 @@ def prep_seqs(ab_fasta_file_path):
 def soft_mut_aa_table():
 
     soft_mut_aa_table = '''
-
     Soft mutation amino-acid key:
 
     Non-polar, aliphatic:
@@ -237,15 +236,15 @@ def soft_mut_aa_table():
 
 class Antibody:
 
-    def __init__(self, i: list, ab_species: str, ab_format: str, chain_num_scheme: str, CDR12_annot: str, CDR3_annot: str, CDR13_annot: str, extra_info="N/A", other_var=None):
+    def __init__(self, i: list, ab_species: str, ab_format: str, chain_num_scheme: str, CDR12_annot: str, CDR3_annot: str, CDR13_annot: str):
 
         '''
-        Antibody object constructor.
-        User's CDR sequence(s) from file looped over and processed with users-defined options
+        Antibody object constructor will receive each users entry from 'my_prot_list'
+        and be processed (format dB call, receive dB results, perform indiv aa matching) with users-defined options
     
         '''
 
-        #i = self.ab_str = [header,'l1_seq','l2_seq','l3_seq','h1_seq','h2_seq','h3_seq']
+        #the format of the list 'i' is a list of 7 strings = [header,'l1_seq','l2_seq','l3_seq','h1_seq','h2_seq','h3_seq']
         self.ab_str = i
         
         self.ab_species = ab_species
@@ -254,34 +253,34 @@ class Antibody:
         self.CDR12_annot = CDR12_annot
         self.CDR3_annot = CDR3_annot
         self.CDR13_annot = CDR13_annot
-        
-        self.extra_info = extra_info
-        self.other_var = other_var
 
 
-
-    def www_CDR_tool(self):
+    def CDR_tool(self):
 
         '''
         This function does 3 things:
-        1) reads in an entry CDR (as self.ab_str), takes the first value as the 'header',  
-        2) loops over its indicies 1 to 6 and fills CDR seqs (empty or not) into 'CDR_tool_results_list', also
-        3) fills 'CDR_match' list with 1(not empty; make apart of dB call + do matching) or 0(empty; dont call to dB or do matching), based on if the entry was empty or not.
+        1) reads input as the entry CDR (as self.ab_str: a list of strings), takes the first string value as the 'header',  
+        2) loops over the next 6 strings, as indicies, and appends those strings (empty or not) into the 6 string list: 'CDR_seqs', then,
+        3) fills 'CDR_match' list with 1 (CDR seq as string detected; include in next steps: formulate dB call + do indiv aa matching) or 0 (empty; don't call to dB or do matching), based on if the entry was empty or not.
+
+        FUTURE ENHANCEMENT: have users submit full antibody sequences (not CDRs of antibody in required format)
+        would require code to use beautifulsoup, etc. to control browser to fill out web-form + process those results...
+        to submit full antibody sequences (as self.ab_str) to an online or internally running SCALOP/SCALOP-like web-form with other required data (ie, users choices)
 
         '''
-        #or, code to submit self.ab_str to online/internal SCALOP form with required data (ie, users choices)
 
         #i = self.ab_str = [header,'l1_seq','l2_seq','l3_seq','h1_seq','h2_seq','h3_seq']
 
         CDR_match = []
-        CDR_tool_results_list = []
+        CDR_seqs = []
         header = self.ab_str[0]
         zero_int = 0
         one_int = 1
 
+        #start at 1, b/c self.ab_str[0] was string 'header'
         for i in range(1,len(self.ab_str)):
 
-            CDR_tool_results_list.append(self.ab_str[i])
+            CDR_seqs.append(self.ab_str[i])
 
             if self.ab_str[i] == '':
 
@@ -292,147 +291,139 @@ class Antibody:
                 CDR_match.append(one_int)
 
         
+        #header is string of entry
+        #CDR_match is list of single char strings, 0 or 1, to indicate whether to analyze CDR or not
+        #CDR_seqs is a list of strings representing the actual CDR sequences
+        return header, CDR_match, CDR_seqs        
 
-        return header, CDR_match, CDR_tool_results_list        
 
 
 
-
-    def call_to_dB(self, header, CDR_match, CDR_tool_results_list):
-
+    def call_to_dB(self, header, CDR_match, CDR_seqs):
 
         '''
-        This function principally does 2 things:
-        1) forms the SQL command based on the users CDR matching choices + CDR lengths and submits to dB
-        2) passes results to next function as list of dicts
-        #returned dB results = a list of dictionaries with single CDR titles as keys ('v1_north'): string of sequences as values('LEDCVNWPTAM')
+        This function does 2 things:
+        1) forms + submits the SQL query based on 1) the users CDR matching choices (ie, 0 or 1 in the input list CDR_match), and 2) the CDR lengths (that comes from the string sequence in input list CDR_seqs)
+        2) passes the returned dB results to the next function (macthing) as list of dictionaries
+
+        #FUTURE ENHANCEMENT: make table call dynamic (when more organisms/domain-numbering schemes are added to dB)
+
         '''
-
-
         #set user-defined options
-        self.ab_species
+        #self.ab_species            not used here (for db-v2) but will be as part of FUTURE ENHANCEMENT (see below) 
         self.ab_format
         self.chain_num_scheme
         self.CDR12_annot
         self.CDR3_annot
         self.CDR13_annot
 
-        #create the SQL command from 'CDR_match' and 'CDR_tool_results_list' using this format, for example...
-        #dB (v2)
+        #create the SQL query from 'CDR_match' list and 'CDR_seqs' list using this format...(for dB v2)
         #SELECT DISTINCT vh_imgt_cdr.v1_north, vh_imgt_cdr.v2_north, vh_imgt_cdr.v3_imgt FROM vh_imgt_cdr WHERE CHAR_LENGTH(vh_imgt_cdr.v1_north) = 13 AND CHAR_LENGTH(vh_imgt_cdr.v2_north) = 10 AND CHAR_LENGTH(vh_imgt_cdr.v3_imgt) = 15;
 
-        #For now, just match to dB with desired CDRs to match + length (ab format)
-
-        dB_prefix = 'SELECT DISTINCT '
-        dB_dynamic1=''        
-        dB_midfix = ' FROM '  
+        sql_prefix = 'SELECT DISTINCT '
+        sql_table_CDR_title_dynamic=''        
+        sql_from = ' FROM '  
         dB_table = self.ab_format + '_' + self.chain_num_scheme + '_cdr'
-        dB_postfix = ' WHERE '
-        dB_dynamic2=''
-        
-        dB_incrementer = 0
+        sql_where = ' WHERE '
+        sql_CDR_charlen_dynamic=''
+
+        sql_final = ''
 
         print('----------------------------------------')
         print('Start of entry: \'' + header + '\'')
-        #print('Calling to dB...')
 
-        for i in range(len(CDR_match)):        #the designer CDRs the user wants to do matching with; for dB_dyanmic1
+        for i in range(len(CDR_match)): 
             
             if CDR_match[i] == 1:
 
-                dB_incrementer +=1
-
                 if i == 0:    
 
-                    dB_CDR= dB_table + '.v1' + '_' + self.CDR13_annot       #this is the VL CDR1-3 var
+                    dB_CDR= dB_table + '.v1' + '_' + self.CDR13_annot       #this is for VL-CDR1; for example, 'vl_imgt_cdr.v1_north'
 
                 elif i == 1:
 
-                    dB_CDR= dB_table + '.v2' + '_' + self.CDR13_annot       #this is the VL CDR1-3 var
+                    dB_CDR= dB_table + '.v2' + '_' + self.CDR13_annot       #this is for VL-CDR2
 
                 elif i == 2:
 
-                    dB_CDR= dB_table + '.v3' + '_' + self.CDR13_annot       #this is the VL CDR1-3 var
+                    dB_CDR= dB_table + '.v3' + '_' + self.CDR13_annot       #this is for VL-CDR3
 
                 elif i == 3:
                     
-                    dB_CDR= dB_table + '.v1' + '_' + self.CDR12_annot       #self.CDR12_annot is the VH chain cdr1+2 var
+                    dB_CDR= dB_table + '.v1' + '_' + self.CDR12_annot       #this is for VH-CDR1
                 
                 elif i == 4:
 
-                    dB_CDR= dB_table + '.v2' + '_' + self.CDR12_annot       #self.CDR12_annot is the VH chain cdr1+2 var                
+                    dB_CDR= dB_table + '.v2' + '_' + self.CDR12_annot       #this is for VH-CDR2                
 
                 elif i == 5:
 
-                    dB_CDR= dB_table + '.v3' + '_' + self.CDR3_annot       #self.CDR3_annot is the VH chain cdr3 var
+                    dB_CDR= dB_table + '.v3' + '_' + self.CDR3_annot        #this is for VH-CDR3
 
 
-                dB_dynamic1 = dB_dynamic1 + dB_CDR + ', '
-                dB_dynamic2 = dB_dynamic2 + 'CHAR_LENGTH('+ dB_CDR + ') = ' + str(len(CDR_tool_results_list[i])) + ' AND '
+                sql_table_CDR_title_dynamic = sql_table_CDR_title_dynamic + dB_CDR + ', '
+                sql_CDR_charlen_dynamic = sql_CDR_charlen_dynamic + 'CHAR_LENGTH('+ dB_CDR + ') = ' + str(len(CDR_seqs[i])) + ' AND '
 
 
-        if dB_incrementer !=0:
-            dB_dynamic1 = dB_dynamic1.removesuffix(', ')
-            dB_dynamic2 = dB_dynamic2.removesuffix(' AND ')
-            dB_dynamic2 = dB_dynamic2 + ';'
+        #make final edits to substrings of final sql query string
+        sql_table_CDR_title_dynamic = sql_table_CDR_title_dynamic.removesuffix(', ')
+        sql_CDR_charlen_dynamic = sql_CDR_charlen_dynamic.removesuffix(' AND ')
+        sql_CDR_charlen_dynamic = sql_CDR_charlen_dynamic + ';'
+
+        #final SQL query for db v2
+        sql_final = sql_prefix + sql_table_CDR_title_dynamic + sql_from + dB_table + sql_where + sql_CDR_charlen_dynamic         
 
 
-    #   final SQL statement
-        dB_dynamic1 = dB_prefix + dB_dynamic1 + dB_midfix + dB_table + dB_postfix + dB_dynamic2         ##v2
- 
-    ##    print(dB_dynamic1)
+
 
         #open dB connnection over network...
-
+        
 ## local
 #        config = {'user': 'root',
 #          'password': 'root',
 #          'host': '127.0.0.1',
 #          'port': 8889,
-#          'database': 'emblig_homo_sdabs',      #this will change based on self.ab_species variable in driver script; 'emblig_' + self.ab_species + '_sdabs'
+#          'database': 'emblig_homo_sdabs', 
 #          'raise_on_warnings': True
 #        }
 
 
-## pro.freedb.tech - (v2)
+## pro.freedb.tech
         config = {'user': 'thomas',
         'password': 't7JM@nNM?*@KzK6',
         'host': 'pro.freedb.tech',         
         'port': 3306,
-        'database': 'EmbligHomoSdabs',      #this will change based on self.ab_species variable in driver script; 'emblig_' + self.ab_species + '_sdabs'
+
+        #FUTURE ENHANCEMENT: dynanmic based on user-defined species they want to search, as set in 'self.ab_species' var in main driver (ie, NOT in db v2)
+        'database': 'EmbligHomoSdabs',      
         'raise_on_warnings': True
         }
 
-
         cnx = mysql.connector.connect(**config)
-
         cursor = cnx.cursor(dictionary=True)
+        cursor.execute(sql_final)
 
-        cursor.execute(dB_dynamic1)
-
+        #dB_results_list is formated as a list of dictionaries; where the dicts are a single CDR title as key (ie, 'v1_north') : single string of sequence as value ('LEDCVNWPTAM')
         dB_results_list = cursor.fetchall()
         
-        #results is a list of dictionaries with single CDR titles as keys ('v1_north'): string of sequences as values('LEDCVNWPTAM')
-        #print(dB_results_list)
-
         cnx.close()
 
-        return header, CDR_match, CDR_tool_results_list, dB_results_list
+        return header, CDR_match, CDR_seqs, dB_results_list
 
 
 
-
-    def matching(self, header, CDR_match, CDR_tool_results_list, dB_results_list):
+    def matching(self, header, CDR_match, CDR_seqs, dB_results_list):
 
         '''
-        Based on the users CDR matching preferences (in self.CDR_match), this function:
-        1) reorganizes the given CDR's matches returned from the dB_results (in 'dB_results_list') to a temporary list ('filler_list'),
-        2) does the individual amino acid matching between users CDR sequence (from 'CDR_tool_results_list') and the re-organized dB results (in 'filler_list'),
-        3) formats the stdout for display (by calling 'format_for_display' function)
+        If there were results returned from dB call...
+            ...based on the users CDR matching preferences (in list CDR_match), this function: (if set to 1, set var to unique dynamic string ('CDR_CDRdef'))
+            1) reorganizes the given, individual CDRs matches returned from the dB_results ('dB_results_list') to a temporary list ('reorg_CDR_result'),
+            2) individual amino acid matching between users CDR sequence (from 'CDR_seqs') and the re-organized dB results (in 'reorg_CDR_result'),
+            3) formats the stdout for display (by calling 'format_for_display' function)
         '''
 
-        #iterate over users preferences (from 'CDR_match'), if set to 1, set some var to unique dynamic string ('CDR_var')
-        #make a list of strings from the dB results if the individual CDR (in 'CDR_var') match
+
+        #make a list of strings from the dB results if the individual CDR (in 'CDR_CDRdef') match
 
 
         #set user-defined options
@@ -443,9 +434,7 @@ class Antibody:
         self.CDR3_annot
         self.CDR13_annot
 
-
-
-        #if there are dB records for the entry...
+        #IF there are NO dB records returned for the entry...
 
         if dB_results_list == []:
         
@@ -464,6 +453,8 @@ class Antibody:
                 print('Light chain CDR 1-3 defintion: ' + self.CDR13_annot)
 
 
+        #IF there are dB records returned for the entry...
+
         else:
 
             print('Matching percentages to all unique CDR combinations from dB of same lengths being calculated...')
@@ -474,97 +465,96 @@ class Antibody:
                 if CDR_match[i] == 1:
                 
                     if i == 0:
-                        # VL-CDR1
-                       # CDR_var = 'v1_north'
-                        CDR_var = 'v1' + '_' + self.CDR13_annot
+                        # for VL-CDR1; for example, 'v1_north'
+                        CDR_CDRdef = 'v1' + '_' + self.CDR13_annot
                         CDR_num = 0
                     
                     elif i == 1:
-                        # VL-CDR2
-                       # CDR_var = 'v2_north'
-                        CDR_var = 'v2' + '_' + self.CDR13_annot
+                        # for VL-CDR2
+                        CDR_CDRdef = 'v2' + '_' + self.CDR13_annot
                         CDR_num = 1
                     
                     elif i == 2:
-                        # VL-CDR3
-                       # CDR_var = 'v3_north'
-                        CDR_var = 'v3' + '_' + self.CDR13_annot
+                        # for VL-CDR3
+                        CDR_CDRdef = 'v3' + '_' + self.CDR13_annot
                         CDR_num = 2
                     
                     elif i == 3:
-                        # VH-CDR1
-                       # CDR_var = 'v1_north'
-                        CDR_var = 'v1' + '_' + self.CDR12_annot
+                        # for VH-CDR1; for example, 'v1_imgt'
+                        CDR_CDRdef = 'v1' + '_' + self.CDR12_annot
                         CDR_num = 3
                     
                     elif i == 4:
-                        # VH-CDR2
-                       # CDR_var = 'v2_north'
-                        CDR_var = 'v2' + '_' + self.CDR12_annot
+                        # for VH-CDR2
+                        CDR_CDRdef = 'v2' + '_' + self.CDR12_annot
                         CDR_num = 4
                     
                     elif i == 5:
-                        # VH-CDR3
-                      #  CDR_var = 'v3_imgt'
-                        CDR_var = 'v3' + '_' + self.CDR3_annot
+                        # for VH-CDR3;; for example, 'v3_imgt'
+                        CDR_CDRdef = 'v3' + '_' + self.CDR3_annot
                         CDR_num = 5
 
 
                     #initiate list for re-organized dB results for that CDR here
-                    filler_list = []
+                    reorg_CDR_result = []
     
                     #iterate over each dict entry in the dB returned, un-organized list
                     for j in dB_results_list:
 
-                        results_keys_var = j.keys()
+                        dB_results_keys = j.keys()
 
                         #iterate over the keys for that individual dict entry
-                        for k in results_keys_var:
+                        for k in dB_results_keys:
 
-                            #if key from individual dict entry matches with that of users preference, fill the 'filler_list' seqs for that CDR
-                            if k == CDR_var:
+                            #if key from individual dict entry matches with that of users preference, fill the 'reorg_CDR_result' list with the sequence strings for that CDR
+                            if k == CDR_CDRdef:
                                 
-                                filler_list.append(j[k])    #or, dB_results_list[j;must be index][k:must be string]
+                                reorg_CDR_result.append(j[k])    #or, dB_results_list[j;must be index][k:must be string]
                     
-                    #fill 'my_CDR_str' with CDR aa sequence
-                    my_CDR_str = CDR_tool_results_list[CDR_num]
-                    matching_list_CDR = []
+                    #fill 'my_CDR_str' with CDR amino acid string sequence and initiate list to hold matching percentages per amino acid for entire CDR ('ALL_aaID_matchFLT')
+                    my_CDR_str = CDR_seqs[CDR_num]
+                    ALL_aaID_matchFLT = []
 
-                    #iterate over 'my_CDR_str', fill a temp list ('storage_list') with each amino acid residue's alphabetical uppercase character,
-                    #then ask if it matches with same index position for each re-organzed dB match for that CDR,
-                    #do some simple math with incremeter and fill storage list with 2nd value; the final matching %
+                    #iterate over 'my_CDR_str', fill a list ('INDIV_aaID_matchFLT') with each amino acid residue's alphabetical uppercase character as a string (thats the 'INDIV_aaID' part),
+                    #then ask if it matches with same index position for each re-organzed dB match for that CDR, if so increment 'match_increment' var
+                    #finally, do some simple math with positive matches (in match_incremet; as numerator) and number of total CDR matches for that CDR (in reorg_CDR_result; as denominator) and assign to 'match_float'
+                    #add 'match_float' to its corresponding single letter amino acid string, assign to list 'INDIV_aaID_matchFLT'; a 2 value list of a string and a float
+                    #finally, add 'INDIV_aaID_matchFLT' list to the list 'ALL_aaID_matchFLT' that holds all amino acids and their matching %'s, and pass that to definition: 'self.format_for_display' for added info to stdout. 
+
                     for m in range(len(my_CDR_str)):
                     
-                        incre_match = 0
-                        storage_list = []
-                        storage_list.append(my_CDR_str[m])
+                        match_increment = 0
+                        INDIV_aaID_matchFLT = []
+                        INDIV_aaID_matchFLT.append(my_CDR_str[m])
             
-                        for n in filler_list:    
+                        for n in reorg_CDR_result:    
 
                             if my_CDR_str[m] == n[m]:
     
-                                incre_match +=1
+                                match_increment +=1
 
-                        position_match_flt = (incre_match / len(filler_list))*100
+                        match_float = (match_increment / len(reorg_CDR_result))*100
 
-                        storage_list.append(round(position_match_flt,2))
+                        #individual amino acid as string + corresponding matching percentage as float; ['Q',72.1]
+                        INDIV_aaID_matchFLT.append(round(match_float,2))
 
-                        matching_list_CDR.append(storage_list)
+                        #for indiv CDR, a list of 2 value lists for ALL individual amino acids as strings + corresponding matching percentage as floats: [['V',35.8],['Q',72.1],...]
+                        ALL_aaID_matchFLT.append(INDIV_aaID_matchFLT)
                     
 
                     #Top line message, printed per analyzed CDR
-                    CDR_label = CDR_var.split('_')   # becomes a 2 value list 
+                    CDR_label = CDR_CDRdef.split('_')   # becomes a 2 value list 
                     print(header + ':' + CDR_label[0] + ' was ' + str(len(my_CDR_str)) + 'aa\'s long;')
 
-                    #The individual aa matching %'s
-                    self.format_for_display(matching_list_CDR)
+                    #Give added info for the individual aa matching %'s by passing 'ALL_aaID_matchFLT' list to def: format_for_display
+                    self.format_for_display(ALL_aaID_matchFLT)
                 
                 print('',end='')
 
 
             #final results lines here
             print('')
-            print('The CDR combination(s) of entry: \'' + header + '\' matched with ' + str(len(filler_list)) + ' dB records.')
+            print('The CDR combination(s) of entry: \'' + header + '\' matched with ' + str(len(reorg_CDR_result)) + ' dB records.')
             print('')
 
             print('dB species searched: ' + self.ab_species)
@@ -584,8 +574,8 @@ class Antibody:
                 print('Light chain CDR 1-3 defintion: ' + self.CDR13_annot)
 
             print('')
-            print('--> ** denotes residues very likely to be directly interacting with your antigen. Hard mutate these to all 19aa; or, at least, to the soft sub-set pattern per key below.')
-            print('--> * denotes residues likely to be contributing to the direct or supporting interaction with your antigen. Mutate these at least to the soft sub-set pattern shown per key below, or to all 19, if diversity space allows.')
+            print('--> ** denotes residues very likely to be directly interacting with your antigen. Hard mutate these to all 19aa; or, at least, to the soft sub-set pattern shown below.')
+            print('--> * denotes residues likely to be contributing to the direct or supporting interaction with your antigen. Mutate these at least to the soft sub-set pattern shown below, or to all 19 if diversity space allows.')
             print('--> Percentages without an * denote residues likely to be playing structural/integriy roles for the interaction with your antigen. Do NOT mutate these.')
             print('')
             print('End of entry.')
@@ -594,10 +584,10 @@ class Antibody:
             print('')
 
 
-    def format_for_display(self, matching_list_CDR):
+    def format_for_display(self, ALL_aaID_matchFLT):
 
 
-        for i in matching_list_CDR:
+        for i in ALL_aaID_matchFLT:
 
             if i[1] <= 25.0:
                 print(i[0] + ':' + str(i[1]) + '**')

@@ -390,7 +390,7 @@ class Antibody:
 
 ## pro.freedb.tech
         config = {'user': 'thomas',
-        'password': 't7JM@nNM?*@KzK6',
+        'password': 'GKR&5TH3pg97wu@',
         'host': 'pro.freedb.tech',         
         'port': 3306,
 

@@ -389,11 +389,18 @@ class Antibody:
 
 
 ## pro.freedb.tech
-        config = {'user': 'thomas',
-        'password': 'GKR&5TH3pg97wu@',
-        'host': 'pro.freedb.tech',         
-        'port': 3306,
+#        config = {'user': 'thomas',
+#        'password': 'GKR&5TH3pg97wu@',
+#        'host': 'pro.freedb.tech',         
+#        'port': 3306,
 
+        
+## cloudclusters.net
+        config = {'user': 'admin',
+        'password': 'PyEs1EnO',
+        'host': 'mysql-191153-0.cloudclusters.net',         
+        'port': 10060,
+                  
         #FUTURE ENHANCEMENT: dynanmic based on user-defined species they want to search, as set in 'self.ab_species' var in main driver (ie, NOT in db v2)
         'database': 'EmbligHomoSdabs',      
         'raise_on_warnings': True

@@ -14,7 +14,7 @@ def main():
 
     #this _dev points to emblig_homo_sdabs dB;
     print('sdab_libdes, the single-domain antibody library design tool')
-    print('freedb.tech dB (v2)')
+    print('cloudcluster.io dB (v2)')
     print('--> human VH or VL only')
     print('--> IMGT-numbered chains/Ig domains only')
     
